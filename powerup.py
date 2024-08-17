@@ -14,7 +14,6 @@ class Powerup:
     def __init__(self, position):
         self.position = position
         self.powerup_type = random.choice(list(PowerupType))
-        self.powerup_type = PowerupType.BALL_RADIUS
         self.radius = 0.5
 
     def draw(self, camera):

@@ -64,6 +64,21 @@ class Main:
 
         self.input_handler = InputHandler()
 
+        self.max_score = 5
+
+        self.win_timer = 0
+
+    def reset(self):
+        self.players = []
+
+        self.players.append(Player(pygame.Vector2(-8, 0), "player1"))
+        self.players.append(Player(pygame.Vector2(8, 0), "player2"))
+
+        self.ball = Ball(pygame.Vector2(0, 0), 0.1)
+
+        self.powerups = []
+        self.powerup_timer = 300
+
     def input(self):
         self.input_handler.update()
 
@@ -71,8 +86,16 @@ class Main:
             player.input(self.input_handler)
 
     def update(self):
+        if self.win_timer > 0:
+            self.win_timer -= 1
+            if self.win_timer == 0:
+                self.reset()
+            return
+
         for player in self.players:
             player.update(self.players, self.ball, self.powerups)
+            if player.score >= self.max_score:
+                self.win_timer = 100
         self.ball.update(self.players)
 
         self.powerup_timer -= 1
@@ -89,8 +112,8 @@ class Main:
         for powerup in self.powerups:
             powerup.draw(self.camera)
 
-        for player in self.players:
-            self.camera.draw_text(str(player.score), player.position + pygame.Vector2(0, 1), 1)
+        if self.win_timer > 0:
+            self.camera.draw_text("Player 1 wins!" if self.players[0].score >= self.max_score else "Player 2 wins!", pygame.Vector2(0, 0), 2)
 
     def main_loop(self):
         while self.state != State.QUIT:

@@ -27,6 +27,7 @@ class Player:
         self.radius = 0.5
         self.score = 0
         self.respawn_timer = 0
+        self.movement_timer = 100
 
     def add_score(self, score):
         self.score += score
@@ -45,6 +46,9 @@ class Player:
 
         if self.velocity.length() > 0:
             self.velocity = self.velocity.normalize() * self.speed
+            self.movement_timer = 0
+        else:
+            self.movement_timer += 1
 
     def update(self, players, ball, powerups):
         if self.respawn_timer > 0:
@@ -82,6 +86,14 @@ class Player:
             return
 
         camera.draw_circle(pygame.Color('black'), self.position, self.radius)
+
+        if self.movement_timer > 100:
+            camera.draw_text(pygame.key.name(CONTROLS[self.name]["up"]), self.position + pygame.Vector2(0, 1), 1)
+            camera.draw_text(pygame.key.name(CONTROLS[self.name]["down"]), self.position + pygame.Vector2(0, -1), 1)
+            camera.draw_text(pygame.key.name(CONTROLS[self.name]["left"]), self.position + pygame.Vector2(-1, 0), 1)
+            camera.draw_text(pygame.key.name(CONTROLS[self.name]["right"]), self.position + pygame.Vector2(1, 0), 1)
+
+        camera.draw_text(str(self.score), self.start_position + pygame.Vector2(0, 5), 1)
 
     def die(self):
         self.respawn_timer = 100
