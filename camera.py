@@ -88,9 +88,11 @@ class Camera:
         radius = int(radius * self.zoom)
         pygame.draw.circle(self.target, color, (x, y), radius)
 
-    def draw_image(self, image, position, size, angle):
-        image = pygame.transform.smoothscale(image, (int(size.x * self.zoom), int(size.y * self.zoom)))
-        image = pygame.transform.rotate(image, angle)
+    def draw_image(self, image, position, size=None, angle=0):
+        if size is not None:
+            image = pygame.transform.smoothscale(image, (int(size.x * self.zoom), int(size.y * self.zoom)))
+        if angle:
+            image = pygame.transform.rotate(image, angle)
         x, y = self.world_to_screen(position)
         x -= image.get_width() // 2
         y -= image.get_height() // 2

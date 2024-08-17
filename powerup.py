@@ -3,6 +3,8 @@ from enum import Enum
 
 import pygame
 
+from level import Level
+
 
 class PowerupType(Enum):
     SPEED = 0
@@ -11,10 +13,10 @@ class PowerupType(Enum):
 
 
 class Powerup:
-    def __init__(self, position):
-        self.position = position
-        self.powerup_type = random.choice(list(PowerupType))
+    def __init__(self):
         self.radius = 0.5
+        self.position = Level.random_position(self.radius)
+        self.powerup_type = random.choice(list(PowerupType))
         self.spawn_timer = 100
 
     def update(self, players, ball, powerups):
@@ -38,7 +40,7 @@ class Powerup:
         if self.powerup_type == PowerupType.SPEED:
             player.speed *= 1.25
         if self.powerup_type == PowerupType.RADIUS:
-            player.radius *= 1.5
+            player.radius *= 1.25
         if self.powerup_type == PowerupType.BALL_RADIUS:
             ball.radius *= 1.5
 

@@ -74,7 +74,7 @@ class Main:
         self.players = []
 
         self.players.append(Player(pygame.Vector2(-8, 0), "player1"))
-        self.players.append(Player(pygame.Vector2(8, 0), "player2"))
+        self.players.append(Player(pygame.Vector2(8, 0), "player2", ai_enabled=False))
 
         self.ball = Ball(pygame.Vector2(0, 0), 0.5)
 
@@ -118,14 +118,15 @@ class Main:
         self.powerup_timer -= 1
 
         if len(self.powerups) < 5 and self.powerup_timer <= 0:
-            self.powerups.append(Powerup(pygame.Vector2(random.uniform(-10, 10), random.uniform(-5, 5))))
+            self.powerups.append(Powerup())
             self.powerup_timer = 300
 
         for powerup in self.powerups:
             powerup.update(self.players, self.ball, self.powerups)
 
     def draw(self):
-        self.screen.fill(pygame.Color('dark green'))
+        self.camera.draw_image(self.image_handler.get_image("background"), pygame.Vector2(0, 0), angle=90)
+
         for player in self.players:
             player.draw(self.camera, self.image_handler)
         self.ball.draw(self.camera, self.image_handler)

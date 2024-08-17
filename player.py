@@ -2,6 +2,7 @@ from enum import Enum
 
 import pygame
 
+from level import Level
 
 CONTROLS = {
     "player1": {
@@ -26,7 +27,7 @@ class AiState(Enum):
 
 
 class Player:
-    def __init__(self, position, name):
+    def __init__(self, position, name, ai_enabled=False):
         self.start_position = position.copy()
         self.position = position
         self.angle = 0.0
@@ -38,14 +39,14 @@ class Player:
         self.respawn_timer = 0
         self.movement_timer = 500
         self.target = pygame.Vector2(0, 0)
-
+        self.ai_enabled = ai_enabled
         self.ai_state = AiState.IDLE
 
     def add_score(self, score):
         self.score += score
 
     def input(self, input_handler):
-        if self.name == "ai":
+        if self.ai_enabled:
             return # AI doesn't need input
 
         self.velocity = pygame.Vector2(0, 0)
@@ -66,7 +67,7 @@ class Player:
             self.movement_timer += 1
 
     def update(self, players, ball, powerups):
-        if self.name == "ai":
+        if self.ai_enabled:
             own_goal = pygame.Vector2(12, 0)
             enemy_goal = pygame.Vector2(-12, 0)
 
@@ -85,7 +86,7 @@ class Player:
                         self.ai_state = AiState.ATTACK
             elif self.ai_state == AiState.ATTACK:
                 if self.position.x > ball.position.x:
-                    self.target = ball.position + pygame.Vector2(0, self.radius + ball.radius)
+                    self.target = ball.position
                 else:
                     self.target = (ball.position + enemy_goal) / 2
 
@@ -109,25 +110,30 @@ class Player:
         self.position += self.velocity
         if self.velocity.length() > 0:
             angle = self.velocity.as_polar()[1] + 90
-            self.angle = angle
+            delta_angle = angle - self.angle
+            if delta_angle > 180:
+                delta_angle -= 360
+            self.angle += 0.5 * delta_angle
 
         if self.position.distance_to(ball.position) < self.radius + ball.radius:
-            ball.kick(self.velocity)
+            ball.kick(ball.position - self.position)
 
-        if self.position.x < -10:
-            self.position.x = -10
+        if self.position.x + self.radius > Level.right:
+            self.position.x = Level.right - self.radius
             self.velocity.x *= -1
-        if self.position.x > 10:
-            self.position.x = 10
+        if self.position.x - self.radius < Level.left:
+            self.position.x = Level.left + self.radius
             self.velocity.x *= -1
-        if self.position.y < -5:
-            self.position.y = -5
+        if self.position.y + self.radius > Level.top:
+            self.position.y = Level.top - self.radius
             self.velocity.y *= -1
-        if self.position.y > 5:
-            self.position.y = 5
+        if self.position.y - self.radius < Level.bottom:
+            self.position.y = Level.bottom + self.radius
             self.velocity.y *= -1
 
     def draw(self, camera, image_handler):
+        camera.draw_text(str(self.score), self.start_position + pygame.Vector2(0, 5), 1)
+
         if self.respawn_timer > 0:
             return
 
@@ -140,8 +146,6 @@ class Player:
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["down"]), self.position + pygame.Vector2(0, -1), 1)
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["left"]), self.position + pygame.Vector2(-1, 0), 1)
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["right"]), self.position + pygame.Vector2(1, 0), 1)
-
-        camera.draw_text(str(self.score), self.start_position + pygame.Vector2(0, 5), 1)
 
         #camera.draw_circle(pygame.Color('black'), self.target, 0.1)
         #camera.draw_text(self.ai_state.name, self.position + pygame.Vector2(0, 2), 1)
