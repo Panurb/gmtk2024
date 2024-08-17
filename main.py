@@ -57,7 +57,7 @@ class Main:
         self.players.append(Player(pygame.Vector2(-8, 0), "player1"))
         self.players.append(Player(pygame.Vector2(8, 0), "player2"))
 
-        self.ball = Ball(pygame.Vector2(0, 0), 0.1)
+        self.ball = Ball(pygame.Vector2(0, 0), 0.5)
 
         self.powerups = []
         self.powerup_timer = 300

@@ -8,6 +8,7 @@ class Ball:
         self.radius = radius
         self.score = 1
         self.respawn_timer = 0
+        self.max_speed = 1.0
 
     def reset(self):
         self.position = pygame.Vector2(0, 0)
@@ -27,6 +28,9 @@ class Ball:
             if self.respawn_timer == 0:
                 self.reset()
 
+        if self.velocity.length() > self.max_speed:
+            self.velocity = self.velocity.normalize() * self.max_speed
+
         self.position += self.velocity
         self.velocity *= 0.98
 
@@ -40,7 +44,7 @@ class Ball:
             if abs(self.position.y) < 3:
                 self.score_goal(players[0])
             else:
-                self.position.x = -10
+                self.position.x = 10
                 self.velocity.x *= -1
         if self.position.y < -5:
             self.position.y = -5
@@ -54,6 +58,8 @@ class Ball:
                 if self.radius > player.radius:
                     player.die()
                 else:
+                    if (self.position - player.position).length() == 0:
+                        self.position = player.position + pygame.Vector2(0.001, 0)
                     self.position = player.position + (self.position - player.position).normalize() * (self.radius + player.radius)
                     self.velocity *= -1
 
