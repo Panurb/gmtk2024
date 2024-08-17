@@ -1,4 +1,5 @@
 import asyncio
+import os
 from collections import defaultdict
 from enum import Enum
 import random
@@ -33,6 +34,21 @@ class InputHandler:
                 self.key_down[event.key] = False
 
 
+class ImageHandler:
+    def __init__(self):
+        self.images = {}
+
+        for file in os.listdir("images"):
+            image = file.split(".")[0]
+            self.images[image] = self.load_image(f"images/{image}.png")
+
+    def load_image(self, path):
+        return pygame.image.load(path)
+
+    def get_image(self, name):
+        return self.images[name]
+
+
 class Main:
     def __init__(self, width, height):
         # init mixer first to prevent audio delay
@@ -48,6 +64,9 @@ class Main:
         self.clock = pygame.time.Clock()
         self.fps = 60
 
+        self.input_handler = InputHandler()
+        self.image_handler = ImageHandler()
+
         self.state = State.GAME
 
         self.mouse = pygame.Vector2(0, 0)
@@ -61,8 +80,6 @@ class Main:
 
         self.powerups = []
         self.powerup_timer = 300
-
-        self.input_handler = InputHandler()
 
         self.max_score = 5
 
@@ -104,11 +121,14 @@ class Main:
             self.powerups.append(Powerup(pygame.Vector2(random.uniform(-10, 10), random.uniform(-5, 5))))
             self.powerup_timer = 300
 
+        for powerup in self.powerups:
+            powerup.update(self.players, self.ball, self.powerups)
+
     def draw(self):
         self.screen.fill(pygame.Color('dark green'))
         for player in self.players:
-            player.draw(self.camera)
-        self.ball.draw(self.camera)
+            player.draw(self.camera, self.image_handler)
+        self.ball.draw(self.camera, self.image_handler)
         for powerup in self.powerups:
             powerup.draw(self.camera)
 

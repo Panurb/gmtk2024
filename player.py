@@ -29,13 +29,14 @@ class Player:
     def __init__(self, position, name):
         self.start_position = position.copy()
         self.position = position
+        self.angle = 0.0
         self.name = name
         self.velocity = pygame.Vector2(0, 0)
         self.speed = 0.1
         self.radius = 0.5
         self.score = 0
         self.respawn_timer = 0
-        self.movement_timer = 100
+        self.movement_timer = 500
         self.target = pygame.Vector2(0, 0)
 
         self.ai_state = AiState.IDLE
@@ -106,6 +107,9 @@ class Player:
                 return
 
         self.position += self.velocity
+        if self.velocity.length() > 0:
+            angle = self.velocity.as_polar()[1] + 90
+            self.angle = angle
 
         if self.position.distance_to(ball.position) < self.radius + ball.radius:
             ball.kick(self.velocity)
@@ -123,18 +127,15 @@ class Player:
             self.position.y = 5
             self.velocity.y *= -1
 
-        for powerup in powerups:
-            if self.position.distance_to(powerup.position) < self.radius + powerup.radius:
-                powerup.apply(self, ball)
-                powerups.remove(powerup)
-
-    def draw(self, camera):
+    def draw(self, camera, image_handler):
         if self.respawn_timer > 0:
             return
 
-        camera.draw_circle(pygame.Color('black'), self.position, self.radius)
+        # transparent black circle
+        camera.draw_transparent_circle(pygame.Color(0, 0, 0, 20), self.position, self.radius)
+        camera.draw_image(image_handler.get_image(self.name), self.position, pygame.Vector2(self.radius * 2.5, self.radius * 2.5), self.angle)
 
-        if self.movement_timer > 100:
+        if self.movement_timer > 500:
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["up"]), self.position + pygame.Vector2(0, 1), 1)
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["down"]), self.position + pygame.Vector2(0, -1), 1)
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["left"]), self.position + pygame.Vector2(-1, 0), 1)

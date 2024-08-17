@@ -32,7 +32,7 @@ class Ball:
             self.velocity = self.velocity.normalize() * self.max_speed
 
         self.position += self.velocity
-        self.velocity *= 0.98
+        self.velocity *= 0.99
 
         if self.position.x < -10:
             if abs(self.position.y) < 3:
@@ -63,8 +63,10 @@ class Ball:
                     self.position = player.position + (self.position - player.position).normalize() * (self.radius + player.radius)
                     self.velocity *= -1
 
-    def draw(self, camera):
-        camera.draw_circle(pygame.Color('white'), self.position, self.radius)
+    def draw(self, camera, image_handler):
+        camera.draw_transparent_circle(pygame.Color(0, 0, 0, 20), self.position, self.radius * 1.1)
+        camera.draw_image(image_handler.get_image("blueberry"), self.position, pygame.Vector2(self.radius * 2.5, self.radius * 2.5), 0)
 
     def kick(self, direction):
-        self.velocity += direction
+        if direction.length() > 0:
+            self.velocity += direction.normalize() * 0.1 / self.radius

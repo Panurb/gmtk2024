@@ -15,14 +15,31 @@ class Powerup:
         self.position = position
         self.powerup_type = random.choice(list(PowerupType))
         self.radius = 0.5
+        self.spawn_timer = 100
+
+    def update(self, players, ball, powerups):
+        if self.spawn_timer > 0:
+            self.spawn_timer -= 1
+        else:
+            for player in players:
+                if self.position.distance_to(player.position) < self.radius + player.radius:
+                    self.apply(player, ball)
+                    powerups.remove(self)
+                    break
 
     def draw(self, camera):
-        camera.draw_circle(pygame.Color('yellow'), self.position, self.radius)
+        shadow_radius = self.radius * (1 + self.spawn_timer / 100)
+        camera.draw_transparent_circle(pygame.Color(0, 0, 0, 20), self.position, shadow_radius * 1.1)
+
+        if self.spawn_timer == 0:
+            camera.draw_circle(pygame.Color('yellow'), self.position, self.radius)
 
     def apply(self, player, ball):
         if self.powerup_type == PowerupType.SPEED:
-            player.speed *= 1.1
+            player.speed *= 1.25
         if self.powerup_type == PowerupType.RADIUS:
-            player.radius *= 1.1
+            player.radius *= 1.5
         if self.powerup_type == PowerupType.BALL_RADIUS:
             ball.radius *= 1.5
+
+        print(f"Player {player.name} picked up {self.powerup_type.name}")
