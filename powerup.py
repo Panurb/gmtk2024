@@ -31,7 +31,7 @@ class Powerup:
 
     def draw(self, camera):
         shadow_radius = self.radius * (1 + self.spawn_timer / 100)
-        camera.draw_transparent_circle(pygame.Color(0, 0, 0, 20), self.position, shadow_radius * 1.1)
+        camera.draw_transparent_circle(Level.shadow_color, self.position, shadow_radius * 1.1)
 
         if self.spawn_timer == 0:
             camera.draw_circle(pygame.Color('yellow'), self.position, self.radius)

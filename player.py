@@ -139,7 +139,7 @@ class Player:
             return
 
         # transparent black circle
-        camera.draw_transparent_circle(pygame.Color(0, 0, 0, 20), self.position, self.radius)
+        camera.draw_transparent_circle(Level.shadow_color, self.position, self.radius)
         camera.draw_image(image_handler.get_image(self.name), self.position, pygame.Vector2(self.radius * 2.5, self.radius * 2.5), self.angle)
 
         if self.movement_timer > 500:

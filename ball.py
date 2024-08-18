@@ -39,8 +39,18 @@ class Ball:
         if self.speed == 0:
             return
 
-        frames = 8 if self.image == "blueberry" else 10
+        if self.image == "blueberry":
+            frames = 8
+        elif self.image == "apple":
+            frames = 10
+        else:
+            frames = 6
         delay = int(2 * math.pi * self.radius / (self.speed * frames))
+
+        # Ball animation is half rotation
+        if self.image == "ball":
+            delay = int(delay / 2)
+
         if self.frame_timer > delay:
             self.frame = (self.frame + 1) % frames
             self.frame_timer = 0
@@ -90,7 +100,7 @@ class Ball:
                 continue
 
             if self.position.distance_to(player.position) < self.radius + player.radius:
-                if self.radius > player.radius and self.velocity.length() > 0.2:
+                if self.radius > player.radius:
                     player.die()
                 else:
                     if (self.position - player.position).length() == 0:
@@ -99,8 +109,14 @@ class Ball:
                     self.velocity *= -self.bounce
 
     def draw(self, camera, image_handler):
-        self.image = "blueberry" if self.radius < 1.0 else "apple"
-        camera.draw_transparent_circle(pygame.Color(0, 0, 0, 20), self.position, self.radius * 1.1)
+        if self.radius < 1.0:
+            self.image = "blueberry"
+        elif self.radius < 2.0:
+            self.image = "apple"
+        else:
+            self.image = "ball"
+
+        camera.draw_transparent_circle(Level.shadow_color, self.position, self.radius * 1.25)
         camera.draw_image(image_handler.get_image(self.image, self.frame), self.position,
                           pygame.Vector2(self.radius * 2.5, self.radius * 2.5),
                           self.angle + image_handler.angle_offset[self.image])
