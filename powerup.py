@@ -42,6 +42,6 @@ class Powerup:
         if self.powerup_type == PowerupType.RADIUS:
             player.radius *= 1.25
         if self.powerup_type == PowerupType.BALL_RADIUS:
-            ball.radius *= 1.5
+            ball.radius *= 2
 
         print(f"Player {player.name} picked up {self.powerup_type.name}")

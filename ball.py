@@ -1,3 +1,5 @@
+import math
+
 import pygame
 
 from level import Level
@@ -15,6 +17,7 @@ class Ball:
         self.frame = 0
         self.frame_timer = 0
         self.bounce = 0.5
+        self.image = "blueberry"
 
     @property
     def speed(self):
@@ -36,11 +39,13 @@ class Ball:
         if self.speed == 0:
             return
 
-        if self.frame_timer == 0:
-            self.frame = (self.frame + 1) % 8
-            self.frame_timer = int(0.2 / self.speed)
+        frames = 8 if self.image == "blueberry" else 10
+        delay = int(2 * math.pi * self.radius / (self.speed * frames))
+        if self.frame_timer > delay:
+            self.frame = (self.frame + 1) % frames
+            self.frame_timer = 0
         else:
-            self.frame_timer -= 1
+            self.frame_timer += 1
 
     def update(self, players):
         if self.respawn_timer > 0:
@@ -51,7 +56,7 @@ class Ball:
         if self.speed > self.max_speed:
             self.velocity = self.velocity.normalize() * self.max_speed
 
-        self.angle = self.velocity.as_polar()[1] - 30
+        self.angle = self.velocity.as_polar()[1]
 
         self.animate()
 
@@ -94,11 +99,12 @@ class Ball:
                     self.velocity *= -self.bounce
 
     def draw(self, camera, image_handler):
+        self.image = "blueberry" if self.radius < 1.0 else "apple"
         camera.draw_transparent_circle(pygame.Color(0, 0, 0, 20), self.position, self.radius * 1.1)
-        camera.draw_image(image_handler.get_image(f"blueberry{self.frame+1}"), self.position,
-                          pygame.Vector2(self.radius * 2.5, self.radius * 2.5), self.angle)
+        camera.draw_image(image_handler.get_image(self.image, self.frame), self.position,
+                          pygame.Vector2(self.radius * 2.5, self.radius * 2.5),
+                          self.angle + image_handler.angle_offset[self.image])
 
     def kick(self, direction):
         if direction.length() > 0:
             self.velocity += direction.normalize() * 0.05 / self.radius
-            self.frame_timer = 0

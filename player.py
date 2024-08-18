@@ -117,6 +117,7 @@ class Player:
 
         if self.position.distance_to(ball.position) < self.radius + ball.radius:
             ball.kick(ball.position - self.position)
+            self.position = ball.position - (ball.position - self.position).normalize() * (self.radius + ball.radius)
 
         if self.position.x + self.radius > Level.right:
             self.position.x = Level.right - self.radius

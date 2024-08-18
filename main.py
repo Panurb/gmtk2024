@@ -47,6 +47,8 @@ class InputHandler:
 class ImageHandler:
     def __init__(self):
         self.images = {}
+        self.frames = {"blueberry": 8, "apple": 10}
+        self.angle_offset = {"blueberry": -30, "apple": 30}
 
         for file in os.listdir("images"):
             image = file.split(".")[0]
@@ -55,7 +57,9 @@ class ImageHandler:
     def load_image(self, path):
         return pygame.image.load(path)
 
-    def get_image(self, name):
+    def get_image(self, name, frame=None):
+        if frame is not None:
+            return self.images[name + str(frame + 1)]
         return self.images[name]
 
 
@@ -103,7 +107,7 @@ class Main:
         self.players.append(Player(pygame.Vector2(-8, 0), "player1"))
         self.players.append(Player(pygame.Vector2(8, 0), "player2", ai_enabled=ai_enabled))
 
-        self.ball = Ball(pygame.Vector2(0, 0), 0.5)
+        self.ball = Ball(pygame.Vector2(0, 0), 1.0)
 
         self.powerups = []
         self.powerup_timer = 300
