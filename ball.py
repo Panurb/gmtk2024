@@ -76,16 +76,17 @@ class Ball:
         if self.score == 0:
             return
 
+        if self.position.x < Level.left:
+            self.score_goal(players[0])
+        if self.position.x > Level.right:
+            self.score_goal(players[1])
+
         if self.position.x - self.radius < Level.left:
-            if abs(self.position.y) < Level.goal_width / 2:
-                self.score_goal(players[1])
-            else:
+            if abs(self.position.y) > Level.goal_width / 2:
                 self.position.x = Level.left + self.radius
                 self.velocity.x *= -self.bounce
         if self.position.x + self.radius > Level.right:
-            if abs(self.position.y) < Level.goal_width / 2:
-                self.score_goal(players[0])
-            else:
+            if abs(self.position.y) > Level.goal_width / 2:
                 self.position.x = Level.right - self.radius
                 self.velocity.x *= -self.bounce
         if self.position.y - self.radius < Level.bottom:
@@ -94,6 +95,12 @@ class Ball:
         if self.position.y + self.radius > Level.top:
             self.position.y = Level.top - self.radius
             self.velocity.y *= -self.bounce
+
+        for goal_post in Level.goal_posts():
+            if self.position.distance_to(goal_post) < self.radius + Level.goal_post_radius:
+                self.position = goal_post + (self.position - goal_post).normalize() * (self.radius + Level.goal_post_radius)
+                # circle-circle collision response
+                self.velocity = self.velocity - 2 * self.velocity.dot(self.position - goal_post) * (self.position - goal_post) / (self.position - goal_post).length_squared()
 
         for player in players:
             if player.respawn_timer > 0:

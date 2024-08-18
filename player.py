@@ -136,6 +136,9 @@ class Player:
         camera.draw_text(str(self.score), self.start_position + pygame.Vector2(0, 5), 1)
 
         if self.respawn_timer > 0:
+            camera.draw_image(image_handler.get_image("dead"), self.position,
+                              pygame.Vector2(self.radius * 2.5, self.radius * 2.5),
+                              self.angle)
             return
 
         # transparent black circle

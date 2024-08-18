@@ -9,6 +9,7 @@ import pygame
 from ball import Ball
 from button import Button
 from camera import Camera
+from level import Level
 from player import Player
 from powerup import Powerup
 
@@ -162,13 +163,16 @@ class Main:
                     player.draw(self.camera, self.image_handler)
                 self.ball.draw(self.camera, self.image_handler)
                 for powerup in self.powerups:
-                    powerup.draw(self.camera)
+                    powerup.draw(self.camera, self.image_handler)
 
                 if self.win_timer > 0:
                     self.camera.draw_text("Player 1 wins!" if self.players[0].score >= self.max_score else "Player 2 wins!", pygame.Vector2(0, 0), 2)
             case State.MENU:
                 for button in self.buttons:
                     button.draw(self.camera)
+
+        #for goal_post in Level.goal_posts():
+        #    self.camera.draw_circle(pygame.Color('black'), goal_post, Level.goal_post_radius)
 
     def main_loop(self):
         while self.state != State.QUIT:

@@ -29,19 +29,23 @@ class Powerup:
                     powerups.remove(self)
                     break
 
-    def draw(self, camera):
+    def draw(self, camera, image_handler):
         shadow_radius = self.radius * (1 + self.spawn_timer / 100)
         camera.draw_transparent_circle(Level.shadow_color, self.position, shadow_radius * 1.1)
 
         if self.spawn_timer == 0:
-            camera.draw_circle(pygame.Color('yellow'), self.position, self.radius)
+            camera.draw_image(image_handler.get_image("candy"), self.position,
+                              pygame.Vector2(self.radius * 2.5, self.radius * 2.5))
 
     def apply(self, player, ball):
         if self.powerup_type == PowerupType.SPEED:
-            player.speed *= 1.25
+            if player.speed < 2:
+                player.speed *= 1.25
         if self.powerup_type == PowerupType.RADIUS:
-            player.radius *= 1.25
+            if player.radius < 2:
+                player.radius *= 1.25
         if self.powerup_type == PowerupType.BALL_RADIUS:
-            ball.radius *= 2
+            if ball.radius < 2:
+                ball.radius *= 2
 
         print(f"Player {player.name} picked up {self.powerup_type.name}")
