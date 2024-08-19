@@ -3,6 +3,7 @@ from enum import Enum
 import pygame
 
 from level import Level
+from powerup import PowerupType
 
 CONTROLS = {
     "player1": {
@@ -42,6 +43,9 @@ class Player:
         self.ai_enabled = ai_enabled
         self.ai_state = AiState.IDLE
 
+        self.speed_timer = 0
+        self.radius_timer = 0
+
     def add_score(self, score):
         self.score += score
 
@@ -67,6 +71,16 @@ class Player:
             self.movement_timer += 1
 
     def update(self, players, ball, powerups):
+        if self.speed_timer > 0:
+            self.speed_timer -= 1
+            if self.speed_timer == 0:
+                self.speed = 0.1
+
+        if self.radius_timer > 0:
+            self.radius_timer -= 1
+            if self.radius_timer == 0:
+                self.radius = 0.5
+
         if self.ai_enabled:
             own_goal = pygame.Vector2(12, 0)
             enemy_goal = pygame.Vector2(-12, 0)

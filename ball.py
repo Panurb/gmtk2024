@@ -18,6 +18,7 @@ class Ball:
         self.frame_timer = 0
         self.bounce = 0.5
         self.image = "blueberry"
+        self.radius_timer = 0
 
     @property
     def speed(self):
@@ -62,6 +63,12 @@ class Ball:
             self.respawn_timer -= 1
             if self.respawn_timer == 0:
                 self.reset()
+
+        if self.radius_timer > 0:
+            self.radius_timer -= 1
+            if self.radius_timer == 0:
+                self.radius = 0.5
+                self.frame = 0
 
         if self.speed > self.max_speed:
             self.velocity = self.velocity.normalize() * self.max_speed
