@@ -2,13 +2,13 @@ import pygame
 
 
 class Button:
-    def __init__(self, position, text, on_click=None):
+    def __init__(self, position, image, on_click):
         self.position = position
-        self.text = text
         self.on_click = on_click
         self.selected = False
         self.width = 5
         self.height = 2
+        self.image = image
 
     def click(self):
         if self.on_click:
@@ -23,9 +23,8 @@ class Button:
         else:
             self.selected = False
 
-    def draw(self, camera):
+    def draw(self, camera, image_handler):
         if self.selected:
-            camera.draw_rectangle(pygame.Color('blue'), self.position, self.width, self.height)
+            camera.draw_image(image_handler.get_image(self.image + "_hover"), self.position)
         else:
-            camera.draw_rectangle(pygame.Color('black'), self.position, self.width, self.height)
-        camera.draw_text(self.text, self.position, 2)
+            camera.draw_image(image_handler.get_image(self.image), self.position)

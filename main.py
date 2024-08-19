@@ -100,8 +100,8 @@ class Main:
         self.win_timer = 0
 
         self.buttons = []
-        self.buttons.append(Button(pygame.Vector2(0, 3), "1 vs 1", lambda: self.reset(ai_enabled=False)))
-        self.buttons.append(Button(pygame.Vector2(0, 0), "1 vs AI", lambda: self.reset(ai_enabled=True)))
+        self.buttons.append(Button(pygame.Vector2(-7, -5), "1vs1", lambda: self.reset(ai_enabled=False)))
+        self.buttons.append(Button(pygame.Vector2(7, -5), "1vsai", lambda: self.reset(ai_enabled=True)))
 
     def reset(self, ai_enabled=False):
         self.players = []
@@ -109,7 +109,7 @@ class Main:
         self.players.append(Player(pygame.Vector2(-8, 0), "player1"))
         self.players.append(Player(pygame.Vector2(8, 0), "player2", ai_enabled=ai_enabled))
 
-        self.ball = Ball(pygame.Vector2(0, 0), 2.0)
+        self.ball = Ball(pygame.Vector2(0, 0), 0.5)
 
         self.powerups = []
         self.powerup_timer = 300
@@ -155,21 +155,23 @@ class Main:
                 pass
 
     def draw(self):
-        self.camera.draw_image(self.image_handler.get_image("background"), pygame.Vector2(0, 0), angle=90)
-
         match self.state:
             case State.GAME:
+                self.camera.draw_image(self.image_handler.get_image("background"), pygame.Vector2(0, 0), angle=90)
                 for player in self.players:
                     player.draw(self.camera, self.image_handler)
                 self.ball.draw(self.camera, self.image_handler)
                 for powerup in self.powerups:
                     powerup.draw(self.camera, self.image_handler)
 
+                self.camera.draw_image(self.image_handler.get_image("goals"), pygame.Vector2(0, 0), angle=90)
+
                 if self.win_timer > 0:
                     self.camera.draw_text("Player 1 wins!" if self.players[0].score >= self.max_score else "Player 2 wins!", pygame.Vector2(0, 0), 2)
             case State.MENU:
+                self.camera.draw_image(self.image_handler.get_image("menu"), pygame.Vector2(0, 0))
                 for button in self.buttons:
-                    button.draw(self.camera)
+                    button.draw(self.camera, self.image_handler)
 
         #for goal_post in Level.goal_posts():
         #    self.camera.draw_circle(pygame.Color('black'), goal_post, Level.goal_post_radius)

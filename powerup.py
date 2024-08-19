@@ -39,7 +39,7 @@ class Powerup:
 
     def apply(self, player, ball):
         if self.powerup_type == PowerupType.SPEED:
-            if player.speed < 2:
+            if player.speed < 0.4:
                 player.speed *= 1.25
         if self.powerup_type == PowerupType.RADIUS:
             if player.radius < 2:
@@ -47,5 +47,6 @@ class Powerup:
         if self.powerup_type == PowerupType.BALL_RADIUS:
             if ball.radius < 2:
                 ball.radius *= 2
+                ball.frame = 0
 
         print(f"Player {player.name} picked up {self.powerup_type.name}")

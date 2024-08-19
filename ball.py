@@ -77,9 +77,9 @@ class Ball:
             return
 
         if self.position.x < Level.left:
-            self.score_goal(players[0])
-        if self.position.x > Level.right:
             self.score_goal(players[1])
+        if self.position.x > Level.right:
+            self.score_goal(players[0])
 
         if self.position.x - self.radius < Level.left:
             if abs(self.position.y) > Level.goal_width / 2:
