@@ -65,6 +65,22 @@ class ImageHandler:
         return self.images[name]
 
 
+class SoundHandler:
+    def __init__(self):
+        self.sounds = {}
+        for file in os.listdir("sounds"):
+            sound = file.split(".")[0]
+            self.sounds[sound] = self.load_sound(f"sounds/{sound}.wav")
+            self.sounds[sound].set_volume(0.5)
+
+    @staticmethod
+    def load_sound(path):
+        return pygame.mixer.Sound(path)
+
+    def play(self, name):
+        self.sounds[name].play()
+
+
 class Main:
     def __init__(self, width, height):
         # init mixer first to prevent audio delay
@@ -72,7 +88,7 @@ class Main:
         pygame.mixer.init()
 
         pygame.init()
-        pygame.display.set_caption('Ant soccer')
+        pygame.display.set_caption('Antsy Soccer')
 
         self.info = pygame.display.Info()
         self.screen = pygame.display.set_mode((width, height), pygame.DOUBLEBUF)
@@ -82,6 +98,7 @@ class Main:
 
         self.input_handler = InputHandler()
         self.image_handler = ImageHandler()
+        self.sound_handler = SoundHandler()
 
         self.state = State.MENU
 
@@ -101,7 +118,7 @@ class Main:
 
         self.buttons = []
         self.buttons.append(Button(pygame.Vector2(-7, -5), "1vs1", lambda: self.reset(ai_enabled=False)))
-        self.buttons.append(Button(pygame.Vector2(7, -5), "1vsai", lambda: self.reset(ai_enabled=True)))
+        self.buttons.append(Button(pygame.Vector2(3, -5), "1vsai", lambda: self.reset(ai_enabled=True)))
 
     def reset(self, ai_enabled=False):
         self.players = []
@@ -138,10 +155,10 @@ class Main:
                     return
 
                 for player in self.players:
-                    player.update(self.players, self.ball, self.powerups)
+                    player.update(self.players, self.ball, self.powerups, self.sound_handler)
                     if player.score >= self.max_score:
                         self.win_timer = 100
-                self.ball.update(self.players)
+                self.ball.update(self.players, self.sound_handler)
 
                 self.powerup_timer -= 1
 
@@ -150,7 +167,7 @@ class Main:
                     self.powerup_timer = 300
 
                 for powerup in self.powerups:
-                    powerup.update(self.players, self.ball, self.powerups)
+                    powerup.update(self.players, self.ball, self.powerups, self.sound_handler)
             case State.MENU:
                 pass
 

@@ -58,7 +58,11 @@ class Ball:
         else:
             self.frame_timer += 1
 
-    def update(self, players):
+    @staticmethod
+    def play_bounce_sound(sound_handler):
+        sound_handler.play("ball")
+
+    def update(self, players, sound_handler):
         if self.respawn_timer > 0:
             self.respawn_timer -= 1
             if self.respawn_timer == 0:
@@ -85,29 +89,36 @@ class Ball:
 
         if self.position.x < Level.left:
             self.score_goal(players[1])
+            sound_handler.play("alarm")
         if self.position.x > Level.right:
             self.score_goal(players[0])
+            sound_handler.play("alarm")
 
         if self.position.x - self.radius < Level.left:
             if abs(self.position.y) > Level.goal_width / 2:
                 self.position.x = Level.left + self.radius
                 self.velocity.x *= -self.bounce
+                self.play_bounce_sound(sound_handler)
         if self.position.x + self.radius > Level.right:
             if abs(self.position.y) > Level.goal_width / 2:
                 self.position.x = Level.right - self.radius
                 self.velocity.x *= -self.bounce
+                self.play_bounce_sound(sound_handler)
         if self.position.y - self.radius < Level.bottom:
             self.position.y = Level.bottom + self.radius
             self.velocity.y *= -self.bounce
+            self.play_bounce_sound(sound_handler)
         if self.position.y + self.radius > Level.top:
             self.position.y = Level.top - self.radius
             self.velocity.y *= -self.bounce
+            self.play_bounce_sound(sound_handler)
 
         for goal_post in Level.goal_posts():
             if self.position.distance_to(goal_post) < self.radius + Level.goal_post_radius:
                 self.position = goal_post + (self.position - goal_post).normalize() * (self.radius + Level.goal_post_radius)
                 # circle-circle collision response
                 self.velocity = self.velocity - 2 * self.velocity.dot(self.position - goal_post) * (self.position - goal_post) / (self.position - goal_post).length_squared()
+                self.play_bounce_sound(sound_handler)
 
         for player in players:
             if player.respawn_timer > 0:
@@ -116,13 +127,19 @@ class Ball:
             if self.position.distance_to(player.position) < self.radius + player.radius:
                 if self.radius > player.radius:
                     player.die()
+                    sound_handler.play("squish")
                 else:
                     if (self.position - player.position).length() == 0:
                         self.position = player.position + pygame.Vector2(0.001, 0)
                     self.position = player.position + (self.position - player.position).normalize() * (self.radius + player.radius)
                     self.velocity *= -self.bounce
+                    self.play_bounce_sound(sound_handler)
 
     def draw(self, camera, image_handler):
+        if 0 < self.respawn_timer < 50:
+            shadow_radius = self.radius * (1 + self.respawn_timer / 100)
+            camera.draw_transparent_circle(Level.shadow_color, pygame.Vector2(0, 0), shadow_radius * 1.1)
+
         if self.radius < 1.0:
             self.image = "blueberry"
         elif self.radius < 2.0:
@@ -135,6 +152,7 @@ class Ball:
                           pygame.Vector2(self.radius * 2.5, self.radius * 2.5),
                           self.angle + image_handler.angle_offset[self.image])
 
-    def kick(self, direction):
+    def kick(self, direction, sound_handler):
         if direction.length() > 0:
             self.velocity += direction.normalize() * 0.05 / self.radius
+            self.play_bounce_sound(sound_handler)

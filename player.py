@@ -70,7 +70,7 @@ class Player:
         else:
             self.movement_timer += 1
 
-    def update(self, players, ball, powerups):
+    def update(self, players, ball, powerups, sound_handler):
         if self.speed_timer > 0:
             self.speed_timer -= 1
             if self.speed_timer == 0:
@@ -100,7 +100,7 @@ class Player:
                         self.ai_state = AiState.ATTACK
             elif self.ai_state == AiState.ATTACK:
                 if self.position.x > ball.position.x:
-                    self.target = ball.position
+                    self.target = ball.position + (ball.position - enemy_goal).normalize() * ball.radius
                 else:
                     self.target = (ball.position + enemy_goal) / 2
 
@@ -130,7 +130,7 @@ class Player:
             self.angle += 0.5 * delta_angle
 
         if self.position.distance_to(ball.position) < self.radius + ball.radius:
-            ball.kick(ball.position - self.position)
+            ball.kick(ball.position - self.position, sound_handler)
             self.position = ball.position - (ball.position - self.position).normalize() * (self.radius + ball.radius)
 
         if self.position.x + self.radius > Level.right:
@@ -147,7 +147,7 @@ class Player:
             self.velocity.y *= -1
 
     def draw(self, camera, image_handler):
-        camera.draw_text(str(self.score), self.start_position + pygame.Vector2(0, 5), 1)
+        camera.draw_text(str(self.score), self.start_position + pygame.Vector2(0, 4), 3)
 
         if self.respawn_timer > 0:
             camera.draw_image(image_handler.get_image("dead"), self.position,

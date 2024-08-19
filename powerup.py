@@ -20,7 +20,7 @@ class Powerup:
         self.spawn_timer = 100
         self.remove_timer = -1
 
-    def update(self, players, ball, powerups):
+    def update(self, players, ball, powerups, sound_handler):
         if self.remove_timer > 0:
             self.remove_timer -= 1
             if self.remove_timer == 0:
@@ -33,6 +33,7 @@ class Powerup:
             for player in players:
                 if self.position.distance_to(player.position) < self.radius + player.radius:
                     self.apply(player, ball)
+                    sound_handler.play("nom")
                     break
 
     def draw(self, camera, image_handler):
@@ -49,7 +50,7 @@ class Powerup:
 
     def apply(self, player, ball):
         if self.powerup_type == PowerupType.SPEED:
-            player.speed = 0.15
+            player.speed = 0.125
             player.speed_timer = 400
         if self.powerup_type == PowerupType.RADIUS:
             player.radius = 1.0
