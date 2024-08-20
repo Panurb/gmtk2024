@@ -125,8 +125,8 @@ class Main:
     def reset(self, ai_enabled=False):
         self.players = []
 
-        self.players.append(Player(pygame.Vector2(-8, 0), "player1"))
-        self.players.append(Player(pygame.Vector2(8, 0), "player2", ai_enabled=ai_enabled))
+        self.players.append(Player(pygame.Vector2(-8, 0), "player1", angle=90))
+        self.players.append(Player(pygame.Vector2(8, 0), "player2", ai_enabled=ai_enabled, angle=-90))
 
         self.ball = Ball(pygame.Vector2(0, 0), 0.5)
 

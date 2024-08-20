@@ -35,10 +35,11 @@ def sign(x):
 
 
 class Player:
-    def __init__(self, position, name, ai_enabled=False):
+    def __init__(self, position, name, ai_enabled=False, angle=0.0):
         self.start_position = position.copy()
+        self.start_angle = angle
         self.position = position
-        self.angle = 0.0
+        self.angle = angle
         self.name = name
         self.velocity = pygame.Vector2(0, 0)
         self.speed = 0.1
@@ -180,6 +181,7 @@ class Player:
             self.respawn_timer -= 1
             if self.respawn_timer == 0:
                 self.position = self.start_position.copy()
+                self.angle = self.start_angle
             else:
                 return
 
