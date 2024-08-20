@@ -164,10 +164,10 @@ class Player:
             if ball.position.x > own_goal.x:
                 self.ai_state = AiState.IDLE
 
-            if self.ai_state is not AiState.WAIT and random.random() < 0.03:
+            if self.ai_state in [AiState.ATTACK, AiState.DEFEND] and random.random() < 0.03:
                 self.previous_ai_state = self.ai_state
                 self.ai_state = AiState.WAIT
-                self.wait_timer = 30
+                self.wait_timer = 20
 
             r = self.target - self.position
             distance = r.length()
