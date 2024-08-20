@@ -50,6 +50,7 @@ class Player:
         self.ai_enabled = ai_enabled
         self.ai_state = AiState.IDLE
         self.previous_ai_state = AiState.IDLE
+        self.wait_timer = 0
 
         self.speed_timer = 0
         self.radius_timer = 0
@@ -149,7 +150,9 @@ class Player:
                 if ball.radius <= self.radius:
                     self.ai_state = AiState.DEFEND
             elif self.ai_state == AiState.WAIT:
-                if random.random() < 0.05:
+                if self.wait_timer > 0:
+                    self.wait_timer -= 1
+                else:
                     self.ai_state = self.previous_ai_state
 
             if ball.radius > self.radius and ball.velocity.x > 0:
@@ -161,9 +164,10 @@ class Player:
             if ball.position.x > own_goal.x:
                 self.ai_state = AiState.IDLE
 
-            if random.random() < 0.01:
+            if self.ai_state is not AiState.WAIT and random.random() < 0.03:
                 self.previous_ai_state = self.ai_state
                 self.ai_state = AiState.WAIT
+                self.wait_timer = 30
 
             r = self.target - self.position
             distance = r.length()
@@ -223,8 +227,8 @@ class Player:
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["left"]), self.position + pygame.Vector2(-1, 0), 1)
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["right"]), self.position + pygame.Vector2(1, 0), 1)
 
-        camera.draw_circle(pygame.Color('black'), self.target, 0.1)
-        camera.draw_text(self.ai_state.name, self.position + pygame.Vector2(0, 2), 1)
+        #camera.draw_circle(pygame.Color('black'), self.target, 0.1)
+        #camera.draw_text(self.ai_state.name, self.position + pygame.Vector2(0, 2), 1)
 
     def die(self):
         self.respawn_timer = 100

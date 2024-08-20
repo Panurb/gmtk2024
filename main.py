@@ -54,6 +54,8 @@ class ImageHandler:
         for file in os.listdir("images"):
             image = file.split(".")[0]
             self.images[image] = self.load_image(f"images/{image}.png")
+            if image in ["background", "goals"]:
+                self.images[image] = pygame.transform.rotate(self.images[image], 90)
 
     @staticmethod
     def load_image(path):
@@ -174,14 +176,14 @@ class Main:
     def draw(self):
         match self.state:
             case State.GAME:
-                self.camera.draw_image(self.image_handler.get_image("background"), pygame.Vector2(0, 0), angle=90)
+                self.camera.draw_image(self.image_handler.get_image("background"), pygame.Vector2(0, 0))
                 for player in self.players:
                     player.draw(self.camera, self.image_handler)
                 self.ball.draw(self.camera, self.image_handler)
                 for powerup in self.powerups:
                     powerup.draw(self.camera, self.image_handler)
 
-                self.camera.draw_image(self.image_handler.get_image("goals"), pygame.Vector2(0, 0), angle=90)
+                self.camera.draw_image(self.image_handler.get_image("goals"), pygame.Vector2(0, 0))
 
                 if self.win_timer > 0:
                     self.camera.draw_text("Player 1 wins!" if self.players[0].score >= self.max_score else "Player 2 wins!", pygame.Vector2(0, 0), 2)
