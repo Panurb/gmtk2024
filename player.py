@@ -49,6 +49,7 @@ class Player:
         self.target = pygame.Vector2(0, 0)
         self.ai_enabled = ai_enabled
         self.ai_state = AiState.IDLE
+        self.previous_ai_state = AiState.IDLE
 
         self.speed_timer = 0
         self.radius_timer = 0
@@ -117,7 +118,7 @@ class Player:
                 if nearest_powerup and self.position.distance_to(nearest_powerup.position) < 5:
                     self.target = nearest_powerup.position
                 else:
-                    if self.position.x < ball.position.x:
+                    if self.position.x < ball.position.x < own_goal.x:
                         self.target = ball_dodge_position
                     else:
                         self.target = self.start_position / 2
@@ -147,12 +148,22 @@ class Player:
 
                 if ball.radius <= self.radius:
                     self.ai_state = AiState.DEFEND
+            elif self.ai_state == AiState.WAIT:
+                if random.random() < 0.05:
+                    self.ai_state = self.previous_ai_state
+
+            if ball.radius > self.radius and ball.velocity.x > 0:
+                self.ai_state = AiState.DEFLECT
 
             if ball.position.x < enemy_goal.x:
                 self.ai_state = AiState.IDLE
 
-            if ball.radius > self.radius and ball.velocity.x > 0:
-                self.ai_state = AiState.DEFLECT
+            if ball.position.x > own_goal.x:
+                self.ai_state = AiState.IDLE
+
+            if random.random() < 0.01:
+                self.previous_ai_state = self.ai_state
+                self.ai_state = AiState.WAIT
 
             r = self.target - self.position
             distance = r.length()
@@ -212,8 +223,8 @@ class Player:
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["left"]), self.position + pygame.Vector2(-1, 0), 1)
             camera.draw_text(pygame.key.name(CONTROLS[self.name]["right"]), self.position + pygame.Vector2(1, 0), 1)
 
-        #camera.draw_circle(pygame.Color('black'), self.target, 0.1)
-        #camera.draw_text(self.ai_state.name, self.position + pygame.Vector2(0, 2), 1)
+        camera.draw_circle(pygame.Color('black'), self.target, 0.1)
+        camera.draw_text(self.ai_state.name, self.position + pygame.Vector2(0, 2), 1)
 
     def die(self):
         self.respawn_timer = 100
