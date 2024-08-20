@@ -1,3 +1,4 @@
+import random
 from enum import Enum
 
 import pygame
@@ -25,6 +26,12 @@ class AiState(Enum):
     IDLE = 0
     ATTACK = 1
     DEFEND = 2
+    DEFLECT = 3
+    WAIT = 4
+
+
+def sign(x):
+    return 1 if x >= 0 else -1
 
 
 class Player:
@@ -70,6 +77,19 @@ class Player:
         else:
             self.movement_timer += 1
 
+    def get_nearest_powerup(self, powerups):
+        nearest_powerup = None
+        nearest_distance = 1000
+        for powerup in powerups:
+            if powerup.spawn_timer > 0:
+                continue
+
+            distance = self.position.distance_to(powerup.position)
+            if distance < nearest_distance:
+                nearest_powerup = powerup
+                nearest_distance = distance
+        return nearest_powerup
+
     def update(self, players, ball, powerups, sound_handler):
         if self.speed_timer > 0:
             self.speed_timer -= 1
@@ -84,35 +104,62 @@ class Player:
         if self.ai_enabled:
             own_goal = pygame.Vector2(12, 0)
             enemy_goal = pygame.Vector2(-12, 0)
+            ball_dodge_position = ball.position - sign(ball.position.y) * pygame.Vector2(0, self.radius + ball.radius + 1)
 
             if self.ai_state == AiState.IDLE:
                 if ball.position.x > 1:
                     self.ai_state = AiState.DEFEND
+                else:
+                    if random.random() < 0.01:
+                        self.ai_state = AiState.ATTACK
 
-                self.target = self.start_position
+                nearest_powerup = self.get_nearest_powerup(powerups)
+                if nearest_powerup and self.position.distance_to(nearest_powerup.position) < 5:
+                    self.target = nearest_powerup.position
+                else:
+                    if self.position.x < ball.position.x:
+                        self.target = ball_dodge_position
+                    else:
+                        self.target = self.start_position / 2
             elif self.ai_state == AiState.DEFEND:
-                if self.position.x < ball.position.x:
-                    self.target = ball.position + pygame.Vector2(0, self.radius + ball.radius + 1)
+                if self.position.x < ball.position.x - 0.2:
+                    self.target = ball_dodge_position
                 else:
                     self.target = (ball.position + own_goal) / 2
 
-                    if self.position.distance_to(self.target) < 0.1:
+                    if self.position.distance_to(self.target) < 0.2:
                         self.ai_state = AiState.ATTACK
             elif self.ai_state == AiState.ATTACK:
-                if self.position.x > ball.position.x:
-                    self.target = ball.position + (ball.position - enemy_goal).normalize() * ball.radius
-                else:
-                    self.target = (ball.position + enemy_goal) / 2
+                self.target = ball.position + (ball.position - enemy_goal).normalize() * ball.radius
+                if ball.position.y != 0:
+                    self.target += pygame.Vector2(0, sign(ball.position.y) * 0.2)
 
                 if self.position.x < ball.position.x:
+                    self.ai_state = AiState.DEFEND
+
+                if ball.position.x < -10:
+                    self.target = pygame.Vector2(0, 0)
+            elif self.ai_state == AiState.DEFLECT:
+                if ball.velocity.x > 0:
+                    self.target = ball.position + pygame.Vector2(ball.radius, -sign(ball.velocity.y)).normalize() * ball.radius
+                else:
+                    self.ai_state = AiState.ATTACK
+
+                if ball.radius <= self.radius:
                     self.ai_state = AiState.DEFEND
 
             if ball.position.x < enemy_goal.x:
                 self.ai_state = AiState.IDLE
 
-            self.velocity = self.target - self.position
-            if self.velocity.length() > 0:
-                self.velocity = self.velocity.normalize() * self.speed
+            if ball.radius > self.radius and ball.velocity.x > 0:
+                self.ai_state = AiState.DEFLECT
+
+            r = self.target - self.position
+            distance = r.length()
+            if distance > 0.1:
+                self.velocity = r.normalize() * self.speed
+            else:
+                self.velocity = pygame.Vector2(0, 0)
 
         if self.respawn_timer > 0:
             self.respawn_timer -= 1
