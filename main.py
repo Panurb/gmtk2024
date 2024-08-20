@@ -54,13 +54,12 @@ class ImageHandler:
         for file in os.listdir("images"):
             image = file.split(".")[0]
             self.images[image] = self.load_image(f"images/{image}.png")
-            self.images[image] = self.images[image].convert_alpha()
             if image in ["background", "goals"]:
                 self.images[image] = pygame.transform.rotate(self.images[image], 90)
 
     @staticmethod
     def load_image(path):
-        return pygame.image.load(path)
+        return pygame.image.load(path).convert_alpha()
 
     def get_image(self, name, frame=None):
         if frame is not None:

@@ -92,14 +92,18 @@ class Camera:
     def transform_image(self, image, scale=1, angle=0):
         key = (image, scale, angle)
         if key not in self.image_cache:
-            self.image_cache[key] = pygame.transform.rotozoom(image, angle, self.zoom * scale)
+            if scale != 1:
+                image = pygame.transform.scale(image, (int(scale * self.zoom), int(scale * self.zoom)))
+            if angle:
+                image = pygame.transform.rotate(image, angle)
+            self.image_cache[key] = image
         return self.image_cache[key]
 
     def draw_image(self, image, position, size=None, angle=0):
         if size is not None:
-            image = pygame.transform.smoothscale(image, (int(size.x * self.zoom), int(size.y * self.zoom)))
-        if angle:
-            image = pygame.transform.rotate(image, angle)
+            image = self.transform_image(image, size.x, 20 * int(angle / 20))
+        else:
+            image = self.transform_image(image, angle=20 * int(angle / 20))
         x, y = self.world_to_screen(position)
         x -= image.get_width() // 2
         y -= image.get_height() // 2
