@@ -15,7 +15,7 @@ from powerup import Powerup
 
 SCREEN_WIDTH = 1280
 SCREEN_HEIGHT = 720
-WEB = True
+WEB = False
 
 
 class State(Enum):
@@ -35,6 +35,8 @@ class InputHandler:
         self.mouse = camera.screen_to_world(x, y)
 
         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return False
             if event.type == pygame.KEYDOWN:
                 self.key_down[event.key] = True
             if event.type == pygame.KEYUP:
@@ -43,6 +45,8 @@ class InputHandler:
                 self.mouse_clicked[event.button] = True
             if event.type == pygame.MOUSEBUTTONUP:
                 self.mouse_clicked[event.button] = False
+
+        return True
 
 
 class ImageHandler:
@@ -136,7 +140,9 @@ class Main:
         self.state = State.GAME
 
     def input(self):
-        self.input_handler.update(self.camera)
+        if not self.input_handler.update(self.camera):
+            self.state = State.QUIT
+            return
 
         for player in self.players:
             player.input(self.input_handler)
