@@ -8,6 +8,7 @@ class Camera:
         self.target = target
         self.surface_center = pygame.Vector2(0, 0)
         self.resolution = target.get_size()
+        self.image_cache = {}
 
     @property
     def x(self):
@@ -87,6 +88,12 @@ class Camera:
         x, y = self.world_to_screen(position)
         radius = int(radius * self.zoom)
         pygame.draw.circle(self.target, color, (x, y), radius)
+
+    def transform_image(self, image, scale=1, angle=0):
+        key = (image, scale, angle)
+        if key not in self.image_cache:
+            self.image_cache[key] = pygame.transform.rotozoom(image, angle, self.zoom * scale)
+        return self.image_cache[key]
 
     def draw_image(self, image, position, size=None, angle=0):
         if size is not None:
